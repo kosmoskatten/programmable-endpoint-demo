@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Simulation.Node (Node, create)
-import Simulation.Node.Service.Http (activate, as)
+import Simulation.Node (Node, create, activateHttpServices, as)
 
 import Behaviors.AppCounter (AppCounter (..))
 import qualified Services.TextOnly as TextOnly
@@ -14,6 +13,6 @@ main = do
   node <- create "127.0.0.1" 8888 :: IO (Node AppCounter)
   
   -- Activate the services at the local node.
-  activate 8888 [ TextOnly.routes `as` "texttv" ]
-  return ()
+  activateHttpServices node 8888 [ TextOnly.routes `as` "texttv" ]
+  readLn
 
