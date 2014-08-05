@@ -8,7 +8,7 @@ import GHC.Int
 -- | Application counter.
 data AppCounter =
   AppCounter { receivedBytes :: !Int64 }
-  deriving Show
+  deriving (Ord, Eq, Show)
            
 -- | Counter instance for the application counter
 instance Counter AppCounter where

@@ -20,12 +20,15 @@ executable programmable-endpoint-demo
   main-is:             Main.hs
   other-modules:       Services.TextOnly
                        , Behaviors.AppCounter
+                       , Behaviors.SlowSurfer
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8
                        , programmable-endpoint
                        , snap-core
                        , snap-blaze
                        , blaze-html
+                       , text
+                       , random
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -Wall -O2 -threaded
