@@ -3,6 +3,7 @@ module Services.TextOnly
        ( routes
        ) where
 
+import Control.Monad (replicateM_)
 import Snap.Blaze (blaze)
 import Simulation.Node.Service.Http
   ( HttpService
@@ -20,14 +21,14 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
 routes :: Routes ()
-routes = Routes [ ("1.html", page "Page 1" ["2.html", "3.html", "4.html"])
-                , ("2.html", page "Page 2" ["1.html", "3.html", "4.html"])
-                , ("3.html", page "Page 3" ["1.html", "2.html", "4.html"])
-                , ("4.html", page "Page 4" ["1.html", "2.html", "3.html"])
+routes = Routes [ ("1.html", page "Page 1" 1 ["2.html", "3.html", "4.html"])
+                , ("2.html", page "Page 2" 2 ["1.html", "3.html", "4.html"])
+                , ("3.html", page "Page 3" 4 ["1.html", "2.html", "4.html"])
+                , ("4.html", page "Page 4" 8 ["1.html", "2.html", "3.html"])
                 , ("static", static) ]
 
-page :: H.Html -> [String] -> HttpService ()
-page theTitle links = do
+page :: H.Html -> Int -> [String] -> HttpService ()
+page theTitle paragrafs links = do
   putResponse htmlResponse
   prefix <- mkPrefixFunc
   blaze $ do
@@ -37,7 +38,7 @@ page theTitle links = do
       H.script ! A.src (prefix "static/textonly.js") $ ""
       H.link ! A.href (prefix "static/textonly.css")
     H.body $ do
-      H.p loremIpsum
+      replicateM_ paragrafs $ H.p loremIpsum
       mapM_ (\l -> H.a ! A.href (prefix l) $ (H.toHtml l)) links
 
 

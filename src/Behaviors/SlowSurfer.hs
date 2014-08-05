@@ -23,8 +23,7 @@ instance BehaviorState SlowSurferState where
     return ("Slow surfer", state)
 
 slowSurfer :: Behavior AppCounter SlowSurferState ()
-slowSurfer = do
-  get >>= liftIO . print
+slowSurfer =
   forever $ do
     state <- get
     page  <- oneOf =<< browsePage (nextPage state)
