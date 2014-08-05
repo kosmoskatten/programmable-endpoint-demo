@@ -2,20 +2,11 @@
 module Behaviors.SlowSurfer where
 
 import Behaviors.AppCounter
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (forever)
-import Data.Text (Text)
-import Simulation.Node.Counter (Counter ())
+import Control.Applicative
+import Control.Monad
+import Data.Text
 import Simulation.Node.Endpoint.Behavior 
-  ( Behavior
-  , BehaviorState (..)
-  , get
-  , put
-  , sleepSec
-  , liftIO
-  )
-import Simulation.Node.Endpoint.Behavior.Browser (browsePage)
-import System.Random
+import Simulation.Node.Endpoint.Behavior.Browser
 
 data SlowSurferState =
   SlowSurferState
@@ -36,17 +27,8 @@ slowSurfer = do
   get >>= liftIO . print
   forever $ do
     state <- get
-    page <- oneOf =<< browsePage (nextPage state)
+    page  <- oneOf =<< browsePage (nextPage state)
     sleepSec $ shortInterval state
     page' <- oneOf =<< browsePage page
     put $ state {nextPage = page'}
-    sleepSec $ longInterval state
-           
-interval :: (Int, Int) -> IO Int
-interval = randomRIO
-
-oneOfIO :: [a] -> IO a
-oneOfIO xs = (xs !!) `fmap` randomRIO (0, length xs - 1)
-
-oneOf :: (BehaviorState s, Counter c) => [a] -> Behavior c s a
-oneOf = liftIO . oneOfIO
+    sleepSec $ longInterval state           
