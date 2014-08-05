@@ -16,7 +16,7 @@ import Simulation.Node.Service.Http.Server
   , htmlResponse
   , loremIpsum
   )
-import Text.Blaze.Html5
+import Text.Blaze.Html5 ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 

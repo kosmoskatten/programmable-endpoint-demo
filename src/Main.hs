@@ -19,6 +19,7 @@ import Simulation.Node.Endpoint.Behavior (Behavior, BehaviorState)
 import Behaviors.AppCounter (AppCounter (..))
 import Behaviors.SlowSurfer
 import qualified Services.TextOnly as TextOnly
+import qualified Services.TextAndImages as TextAndImages
 import System.IO (stderr, hPutStrLn)
 import System.Random (randomRIO)
 import Text.Printf
@@ -34,7 +35,8 @@ main = do
   task <- async $ nodeStatistics node
   
   -- Activate the services at the local node.
-  activateHttpServices node 8888 [ TextOnly.routes `as` "texttv" ]
+  activateHttpServices node 8888 [ TextOnly.routes `as` "texttv"
+                                 , TextAndImages.routes `as` "blogger" ]
   threadDelay 1000000
 
   -- Create endpoint in the node.

@@ -17,9 +17,9 @@ data SlowSurferState =
            
 instance BehaviorState SlowSurferState where
   fetch = do
-    state <- SlowSurferState <$> oneOfIO ["/texttv/1.html"] 
-                             <*> interval (10, 20)
-                             <*> interval (40, 80)
+    state <- SlowSurferState <$> oneOfIO ["/texttv/1.html", "/blogger/1.html"] 
+                             <*> interval (15, 30)
+                             <*> interval (40, 90)
     return ("Slow surfer", state)
 
 slowSurfer :: Behavior AppCounter SlowSurferState ()
