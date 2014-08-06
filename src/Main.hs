@@ -1,10 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), (<*>))
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.STM (TVar, readTVarIO)
-import Control.Concurrent.Async (async, wait)
+import Control.Concurrent.Async ( Concurrently (..)
+                                , async
+                                , wait
+                                , runConcurrently )
 import Control.Monad (void, replicateM_)
 import Simulation.Node 
   ( Node
@@ -17,6 +20,7 @@ import Simulation.Node.Counter (Counter (..))
 import Simulation.Node.Endpoint (Endpoint, addBehavior)
 import Simulation.Node.Endpoint.Behavior (Behavior, BehaviorState)
 import Behaviors.AppCounter (AppCounter (..))
+import Behaviors.BusySurfer
 import Behaviors.SlowSurfer
 import qualified Services.TextOnly as TextOnly
 import qualified Services.TextAndImages as TextAndImages
@@ -43,7 +47,11 @@ main = do
   ep <- createEndpoint "127.0.0.1" node
   
   -- Add behaviors.
-  slowlyAdd 5000 slowSurfer ep
+  --void $ slowlyAdd 4 slowSurfer ep
+  void $ 
+    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 slowSurfer ep)
+                          <*> Concurrently (slowlyAdd 1000 busySurfer ep)
+    
   putStrLn "-------------------->"
   
   -- Wait until ^C.

@@ -21,6 +21,7 @@ executable programmable-endpoint-demo
   other-modules:       Services.TextOnly
                        , Services.TextAndImages
                        , Behaviors.AppCounter
+                       , Behaviors.BusySurfer
                        , Behaviors.SlowSurfer
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8

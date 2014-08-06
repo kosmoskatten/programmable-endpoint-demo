@@ -1,10 +1,13 @@
-{-# LANGUAGE OverloadedStrings, TupleSections #-}
-module Behaviors.SlowSurfer where
+{-# LANGUAGE OverloadedStrings #-}
+module Behaviors.SlowSurfer 
+       ( SlowSurferState
+       , slowSurfer
+       ) where
 
-import Behaviors.AppCounter
 import Control.Applicative
 import Control.Monad
 import Data.Text
+import Simulation.Node.Counter
 import Simulation.Node.Endpoint.Behavior 
 import Simulation.Node.Endpoint.Behavior.Browser
 
@@ -18,11 +21,11 @@ data SlowSurferState =
 instance BehaviorState SlowSurferState where
   fetch = do
     state <- SlowSurferState <$> oneOfIO ["/texttv/1.html", "/blogger/1.html"] 
-                             <*> interval (15, 30)
-                             <*> interval (40, 90)
+                             <*> interval (30, 90)
+                             <*> interval (180, 3600)
     return ("Slow surfer", state)
 
-slowSurfer :: Behavior AppCounter SlowSurferState ()
+slowSurfer :: Counter c => Behavior c SlowSurferState ()
 slowSurfer =
   forever $ do
     state <- get
