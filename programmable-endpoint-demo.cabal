@@ -20,7 +20,7 @@ executable programmable-endpoint-demo
   main-is:             Main.hs
   other-modules:       Services.TextOnly
                        , Services.TextAndImages
-                       , Behaviors.AppCounter
+                       , Behaviors.Counter
                        , Behaviors.BusySurfer
                        , Behaviors.SlowSurfer
   -- other-extensions:    

@@ -7,7 +7,7 @@ module Behaviors.BusySurfer
 import Control.Applicative
 import Control.Monad
 import Data.Text
-import Simulation.Node.Counter
+import Simulation.Node.Endpoint.AppCounter
 import Simulation.Node.Endpoint.Behavior
 import Simulation.Node.Endpoint.Behavior.Browser
 
@@ -26,7 +26,7 @@ instance BehaviorState BusySurferState where
                              <*> interval (15, 45)
     return ("Busy surfer", state)
            
-busySurfer :: Counter c => Behavior c BusySurferState ()
+busySurfer :: AppCounter c => Behavior c BusySurferState ()
 busySurfer = 
   forever $ do
     state <- get

@@ -7,7 +7,7 @@ module Behaviors.SlowSurfer
 import Control.Applicative
 import Control.Monad
 import Data.Text
-import Simulation.Node.Counter
+import Simulation.Node.Endpoint.AppCounter
 import Simulation.Node.Endpoint.Behavior 
 import Simulation.Node.Endpoint.Behavior.Browser
 
@@ -25,7 +25,7 @@ instance BehaviorState SlowSurferState where
                              <*> interval (180, 3600)
     return ("Slow surfer", state)
 
-slowSurfer :: Counter c => Behavior c SlowSurferState ()
+slowSurfer :: AppCounter c => Behavior c SlowSurferState ()
 slowSurfer =
   forever $ do
     state <- get

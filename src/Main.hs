@@ -16,10 +16,11 @@ import Simulation.Node
   , activateHttpServices
   , as
   , createEndpoint )
-import Simulation.Node.Counter (Counter (..))
+import Simulation.Node.SystemCounter (SystemCounter (..))
 import Simulation.Node.Endpoint (Endpoint, addBehavior)
+import Simulation.Node.Endpoint.AppCounter (AppCounter)
 import Simulation.Node.Endpoint.Behavior (Behavior, BehaviorState)
-import Behaviors.AppCounter (AppCounter (..))
+import Behaviors.Counter (Counter)
 import Behaviors.BusySurfer
 import Behaviors.SlowSurfer
 import qualified Services.TextOnly as TextOnly
@@ -33,7 +34,7 @@ main :: IO ()
 main = do
   -- Create the local node, using the specified gateway address for
   -- use of services.
-  node <- create "127.0.0.1" 8888 :: IO (Node AppCounter)
+  node <- create "127.0.0.1" 8888 :: IO (Node Counter)
   
   -- Activate node statistics displaying.
   task <- async $ nodeStatistics node
@@ -44,32 +45,35 @@ main = do
   threadDelay 1000000
 
   -- Create endpoint in the node.
-  ep <- createEndpoint "127.0.0.1" node
+  ep <- createEndpoint "192.168.1.80" node
+  ep2 <- createEndpoint "127.0.0.1" node
   
   -- Add behaviors.
-  --void $ slowlyAdd 4 slowSurfer ep
+--  void $ slowlyAdd 4 slowSurfer ep
+--  void $ slowlyAdd 4 busySurfer ep2
   void $ 
-    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 slowSurfer ep)
-                          <*> Concurrently (slowlyAdd 1000 busySurfer ep)
+    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 busySurfer ep)
+                          <*> Concurrently (slowlyAdd 1000 busySurfer ep2)
     
   putStrLn "-------------------->"
   
   -- Wait until ^C.
   wait task
 
-nodeStatistics :: Counter c => Node c -> IO ()
+nodeStatistics :: Node c -> IO ()
 nodeStatistics node =
   nodeStatistics' (counter node) 0
   where
-    nodeStatistics' :: Counter c => TVar c -> Int64 -> IO ()
+    nodeStatistics' :: TVar SystemCounter -> Int64 -> IO ()
     nodeStatistics' tvar amount = do
-      amount' <- getReceived <$> readTVarIO tvar
+      amount' <- bytesReceived <$> readTVarIO tvar
       let delta = amount' - amount
-      hPutStrLn stderr $ printf "Total amount: %d, last second: %d" amount' delta
+      hPutStrLn stderr $
+        printf "Total amount: %d, last second: %d" amount' delta
       threadDelay 1000000
       nodeStatistics' tvar amount'
   
-slowlyAdd :: (Counter c, BehaviorState s) =>
+slowlyAdd :: (AppCounter c, BehaviorState s) =>
              Int -> Behavior c s () -> Endpoint c -> IO ()
 slowlyAdd num behavior endpoint =
   replicateM_ num $ do
