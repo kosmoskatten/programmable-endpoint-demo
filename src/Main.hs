@@ -45,15 +45,15 @@ main = do
   threadDelay 1000000
 
   -- Create endpoint in the node.
-  ep <- createEndpoint "192.168.1.80" node
+  ep <- createEndpoint "127.0.0.1" node
   ep2 <- createEndpoint "127.0.0.1" node
   
   -- Add behaviors.
---  void $ slowlyAdd 4 slowSurfer ep
---  void $ slowlyAdd 4 busySurfer ep2
-  void $ 
-    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 busySurfer ep)
-                          <*> Concurrently (slowlyAdd 1000 busySurfer ep2)
+  void $ slowlyAdd 4 slowSurfer ep
+  void $ slowlyAdd 4 busySurfer ep2
+--  void $ 
+--    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 busySurfer ep)
+--                          <*> Concurrently (slowlyAdd 1000 busySurfer ep2)
     
   putStrLn "-------------------->"
   

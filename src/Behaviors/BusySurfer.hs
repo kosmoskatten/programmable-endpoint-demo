@@ -7,9 +7,9 @@ module Behaviors.BusySurfer
 import Control.Applicative
 import Control.Monad
 import Data.Text
-import Simulation.Node.Endpoint.AppCounter
 import Simulation.Node.Endpoint.Behavior
-import Simulation.Node.Endpoint.Behavior.Browser
+import Behaviors.Counter
+import Behaviors.CountingBrowser
 
 data BusySurferState =
   BusySurferState
@@ -26,10 +26,10 @@ instance BehaviorState BusySurferState where
                              <*> interval (15, 45)
     return ("Busy surfer", state)
            
-busySurfer :: AppCounter c => Behavior c BusySurferState ()
+busySurfer :: Behavior Counter BusySurferState ()
 busySurfer = 
   forever $ do
     state <- get
-    page <- oneOf =<< browsePage (nextPage state)
+    page <- oneOf =<< browsePageCounted (nextPage state)
     put $ state {nextPage = page}
     sleepSec $ waitInterval state

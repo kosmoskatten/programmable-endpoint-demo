@@ -7,9 +7,9 @@ module Behaviors.SlowSurfer
 import Control.Applicative
 import Control.Monad
 import Data.Text
-import Simulation.Node.Endpoint.AppCounter
 import Simulation.Node.Endpoint.Behavior 
-import Simulation.Node.Endpoint.Behavior.Browser
+import Behaviors.Counter
+import Behaviors.CountingBrowser
 
 data SlowSurferState =
   SlowSurferState
@@ -25,12 +25,12 @@ instance BehaviorState SlowSurferState where
                              <*> interval (180, 3600)
     return ("Slow surfer", state)
 
-slowSurfer :: AppCounter c => Behavior c SlowSurferState ()
+slowSurfer :: Behavior Counter SlowSurferState ()
 slowSurfer =
   forever $ do
     state <- get
-    page  <- oneOf =<< browsePage (nextPage state)
+    page  <- oneOf =<< browsePageCounted (nextPage state)
     sleepSec $ shortInterval state
-    page' <- oneOf =<< browsePage page
+    page' <- oneOf =<< browsePageCounted page
     put $ state {nextPage = page'}
     sleepSec $ longInterval state           
