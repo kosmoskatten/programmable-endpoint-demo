@@ -49,11 +49,11 @@ main = do
   ep2 <- createEndpoint "127.0.0.1" node
   
   -- Add behaviors.
-  void $ slowlyAdd 4 slowSurfer ep
-  void $ slowlyAdd 4 busySurfer ep2
---  void $ 
---    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 busySurfer ep)
---                          <*> Concurrently (slowlyAdd 1000 busySurfer ep2)
+--  void $ slowlyAdd 4 slowSurfer ep
+--  void $ slowlyAdd 4 busySurfer ep2
+  void $ 
+    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 busySurfer ep)
+                          <*> Concurrently (slowlyAdd 1000 busySurfer ep2)
     
   putStrLn "-------------------->"
   
