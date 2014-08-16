@@ -10,16 +10,16 @@ import Control.Concurrent.Async ( Concurrently (..)
                                 , runConcurrently )
 import Control.Monad (void, replicateM_)
 import Simulation.Node 
-  ( Node
-  , counter
+  ( Node (counter, endpoints)
   , create
   , activateHttpServices
   , as
   , createEndpoint )
 import Simulation.Node.SystemCounter (SystemCounter (..))
-import Simulation.Node.Endpoint (Endpoint, addBehavior)
+import Simulation.Node.Endpoint (Endpoint (behaviors), addBehavior)
 import Simulation.Node.Endpoint.AppCounter (AppCounter)
 import Simulation.Node.Endpoint.Behavior (Behavior, BehaviorState)
+import Simulation.Node.Endpoint.Behavior.Descriptor (Descriptor (appCounter))
 import Behaviors.Counter (Counter)
 import Behaviors.BusySurfer
 import Behaviors.SlowSurfer
@@ -52,30 +52,39 @@ main = do
   void $ slowlyAdd 4 slowSurfer ep
   void $ slowlyAdd 4 busySurfer ep2
 --  void $ 
---    runConcurrently $ (,) <$> Concurrently (slowlyAdd 1000 busySurfer ep)
---                          <*> Concurrently (slowlyAdd 1000 busySurfer ep2)
+--    runConcurrently $ (,) <$> Concurrently (slowlyAdd 2000 busySurfer ep)
+--                          <*> Concurrently (slowlyAdd 2000 busySurfer ep2)
     
   putStrLn "-------------------->"
   
   -- Wait until ^C.
   wait task
 
-watchStatistics :: Node c -> IO ()
-watchStatistics node = go node 0
+watchStatistics :: Node Counter -> IO ()
+watchStatistics = go 0
   where
-    go :: Node c -> Int64 -> IO ()
-    go node' amount = do
+    go :: Int64 -> Node Counter -> IO ()
+    go amount node' = do
       amount' <- displayDownlink node' amount
+      endpoints' <- readTVarIO (endpoints node')
+      let descriptors =  map behaviors endpoints' -- [TVar [Desc]]
+      descriptors' <- concat <$> mapM readTVarIO descriptors -- [Desc]
+      mapM_ displayCounter descriptors'
       threadDelay 1000000
-      go node' amount'
+      go amount' node'
 
-displayDownlink :: Node c -> Int64 -> IO Int64
+displayDownlink :: Node Counter -> Int64 -> IO Int64
 displayDownlink node amount = do
   amount' <- bytesReceived <$> readTVarIO (counter node)
   let delta = amount' - amount
   hPutStrLn stderr $
     printf "Total amount: %d, last second: %d" amount' delta
   return amount'
+
+displayCounter :: Descriptor Counter -> IO ()
+displayCounter descriptor = do
+  c <- readTVarIO (appCounter descriptor)
+  hPutStrLn stderr $ show c
 
 slowlyAdd :: (AppCounter c, BehaviorState s) =>
              Int -> Behavior c s () -> Endpoint c -> IO ()
